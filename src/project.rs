@@ -1,5 +1,6 @@
 use std::fs::create_dir;
 use std::path::PathBuf;
+use std::process::exit;
 
 /* Check if the path exists, if it does, exit the program
  *
@@ -32,6 +33,48 @@ pub fn create_project(name: String, path_buffer: Option<PathBuf>) {
         Err(msg) => {
             println!("Failed to create {} in {}", name, path.display());
             panic!("{}", msg);
+        }
+    }
+}
+
+fn source_folder() {
+    println!("Attempting to source virtualenv");
+    match std::process::Command::new("source")
+        .arg("venv/bin/activate")
+        .spawn()
+    {
+        Ok(_) => println!("Sourced virtualenv"),
+        Err(msg) => {
+            match msg.kind() {
+                std::io::ErrorKind::NotFound => {
+                    println!("Failed to source virtualenv, not found");
+                }
+                std::io::ErrorKind::PermissionDenied => {
+                    println!("Failed to source virtualenv, permission denied");
+                }
+                _ => {
+                    println!("Failed to source virtualenv");
+                }
+            };
+            exit(1);
+        }
+    }
+}
+
+/// When in a project, source the project's virtualenv
+pub fn activate_project(folder_name: Option<String>) {
+    let dir = folder_name.map(|name| PathBuf::from(name.as_str()));
+
+    match dir {
+        Some(_) => {
+            source_folder();
+        }
+        None => {
+            if std::fs::read_dir("./venv").is_ok() {
+                source_folder();
+            } else {
+                println!("No virtualenv found");
+            }
         }
     }
 }
