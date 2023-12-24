@@ -1,0 +1,11 @@
+changelog:
+  exclude:
+    authors:
+      - dependabot
+  categories:
+    - title: New Features 🎉
+      labels:
+        - enhancement
+    - title: Release Notes
+      labels:
+        - "*"
