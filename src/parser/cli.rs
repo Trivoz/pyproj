@@ -15,8 +15,8 @@ pub enum Commands {
     #[command(arg_required_else_help = true, alias = "n")]
     New {
         /// The name of the project
-        #[arg(required = true, value_name = "project", value_enum)]
-        name: String,
+        #[arg(required_unless_present("path"), value_name = "project", value_enum)]
+        name: Option<String>,
 
         /// Specify where to create the project
         ///

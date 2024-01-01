@@ -19,18 +19,28 @@ fn check_path_exists(path: PathBuf) {
     }
 }
 
-pub fn create_project(name: String, path_buffer: Option<PathBuf>) {
+pub fn create_project(name: Option<String>, path_buffer: Option<PathBuf>) {
+    // if the name doesn't exist but the path buffer does, it uses that
+
     let path = match path_buffer {
         Some(path) => path,
-        None => PathBuf::from(name.as_str()),
+        None => {
+            if name.is_some() {
+                PathBuf::from(name.unwrap().as_str())
+            } else {
+                panic!("Either a name or path must be given");
+            }
+        }
     };
+
     check_path_exists(path.clone());
+
     match create_dir(path.clone()) {
         Ok(result) => {
-            println!("Creating {} in {}: {:?}", name, path.display(), result);
+            println!("Creating new project in {}", path.display());
         }
         Err(msg) => {
-            println!("Failed to create {} in {}", name, path.display());
+            println!("Failed to create new project in {}", path.display());
             panic!("{}", msg);
         }
     }
@@ -80,7 +90,7 @@ mod tests {
         if path.exists() {
             std::fs::remove_dir_all(path.clone()).unwrap();
         }
-        create_project("test_folder".to_string(), Some(path.clone()));
+        create_project(Some("test_folder".to_string()), Some(path.clone()));
         assert!(path.exists());
         std::fs::remove_dir_all(path.clone()).unwrap();
     }
@@ -91,7 +101,7 @@ mod tests {
         if path.exists() {
             std::fs::remove_dir_all(path.clone()).unwrap();
         }
-        create_project("proj".to_string(), Some(path.clone()));
+        create_project(Some("proj".to_string()), Some(path.clone()));
         assert!(path.exists());
         remove_project("proj".to_string());
         assert!(!path.exists());
