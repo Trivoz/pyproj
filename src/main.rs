@@ -11,6 +11,7 @@ fn main() {
         match commands {
             Commands::New { name, path } => project::create_project(name, path),
             Commands::Delete { name } => project::remove_project(name),
+            Commands::Activate(opt) => project::activate_project(opt.name),
         }
     }
 }
